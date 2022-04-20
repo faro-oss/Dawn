@@ -18,14 +18,11 @@ import os, subprocess, sys
 from generator_lib import Generator, run_generator, FileRender
 
 
-def get_git():
-    return "git.bat" if sys.platform == "win32" else "git"
-
-
 def get_gitHash(dawnDir):
-    result = subprocess.run([get_git(), "rev-parse", "HEAD"],
+    result = subprocess.run(["git", "rev-parse", "HEAD"],
                             stdout=subprocess.PIPE,
-                            cwd=dawnDir)
+                            cwd=dawnDir,
+                            shell=True)
     if result.returncode == 0:
         return result.stdout.decode("utf-8").strip()
     # No hash was available (possibly) because the directory was not a git checkout. Dawn should
@@ -59,10 +56,10 @@ def unpackGitRef(packed, resolved):
 
 def get_gitResolvedHead(dawnDir):
     result = subprocess.run(
-        [get_git(), "rev-parse", "--symbolic-full-name", "HEAD"],
+        ["git", "rev-parse", "--symbolic-full-name", "HEAD"],
         stdout=subprocess.PIPE,
         cwd=dawnDir,
-    )
+        shell=True)
     if result.returncode != 0:
         raise Exception("Failed to execute git rev-parse to resolve git head.")
 
@@ -103,7 +100,6 @@ class DawnVersionGenerator(Generator):
             try:
                 return [get_gitHead(dawnDir)] + get_gitResolvedHead(dawnDir)
             except Exception as e:
-                print(e)
                 return []
         return []
 
