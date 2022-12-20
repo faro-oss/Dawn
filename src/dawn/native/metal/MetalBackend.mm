@@ -18,6 +18,7 @@
 #include "dawn/native/MetalBackend.h"
 
 #include "dawn/native/metal/CommandRecordingContext.h"
+#include "dawn/native/metal/BufferMTL.h"
 #include "dawn/native/metal/DeviceMTL.h"
 #include "dawn/native/metal/TextureMTL.h"
 
@@ -47,6 +48,17 @@ void IOSurfaceEndAccess(WGPUTexture cTexture,
                         ExternalImageIOSurfaceEndAccessDescriptor* descriptor) {
     Texture* texture = ToBackend(FromAPI(cTexture));
     texture->IOSurfaceEndAccess(descriptor);
+}
+
+WGPUBuffer WrapBuffer(WGPUDevice device,
+                      const ExternalBufferDescriptor* descriptor) {
+    Device* backendDevice = ToBackend(FromAPI(device));
+    Ref<BufferBase> buffer = backendDevice->CreateBufferWrapping(descriptor, descriptor->buffer);
+    return ToAPI(buffer.Detach());
+}
+
+id<MTLDevice> UnwrapDevice(WGPUDevice device) {
+    return ToBackend(FromAPI(device))->GetMTLDevice();
 }
 
 void WaitForCommandsToBeScheduled(WGPUDevice device) {

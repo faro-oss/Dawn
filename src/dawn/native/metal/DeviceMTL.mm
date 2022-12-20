@@ -533,6 +533,20 @@ Ref<Texture> Device::CreateTextureWrappingIOSurface(
     return result;
 }
 
+
+Ref<Buffer> Device::CreateBufferWrapping(const ExternalBufferDescriptor* descriptor,
+                                 NSPRef<id<MTLBuffer>> buffer) {
+    const BufferDescriptor* bufferDescriptor = FromAPI(descriptor->bufferDescriptor);
+    if (ConsumedError(ValidateIsAlive())) {
+        return nullptr;
+    }
+    if (ConsumedError(ValidateBufferDescriptor(this, bufferDescriptor))) {
+        return nullptr;
+    }
+
+    return Buffer::CreateWrapping(this, bufferDescriptor, buffer);
+}
+
 void Device::WaitForCommandsToBeScheduled() {
     if (ConsumedError(SubmitPendingCommandBuffer())) {
         return;

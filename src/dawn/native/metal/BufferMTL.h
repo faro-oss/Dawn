@@ -29,6 +29,9 @@ class Device;
 class Buffer final : public BufferBase {
   public:
     static ResultOrError<Ref<Buffer>> Create(Device* device, const BufferDescriptor* descriptor);
+    static Ref<Buffer> CreateWrapping(Device* device,
+                                      const BufferDescriptor* descriptor,
+                                      NSPRef<id<MTLBuffer>> wrapped);
 
     Buffer(DeviceBase* device, const BufferDescriptor* descriptor);
 
@@ -46,6 +49,7 @@ class Buffer final : public BufferBase {
   private:
     using BufferBase::BufferBase;
     MaybeError Initialize(bool mappedAtCreation);
+    void InitializeAsWrapping(const BufferDescriptor* descriptor, NSPRef<id<MTLBuffer>> wrapped);
 
     ~Buffer() override;
 

@@ -35,6 +35,15 @@ ResultOrError<Ref<Buffer>> Buffer::Create(Device* device, const BufferDescriptor
 }
 
 // static
+Ref<Buffer> Buffer::CreateWrapping(Device* device,
+                                   const BufferDescriptor* descriptor,
+                                   NSPRef<id<MTLBuffer>> wrapped) {
+    Ref<Buffer> buffer = AcquireRef(new Buffer(device, descriptor));
+    buffer->InitializeAsWrapping(descriptor, std::move(wrapped));
+    return buffer;
+}
+
+// static
 uint64_t Buffer::QueryMaxBufferLength(id<MTLDevice> mtlDevice) {
     if (@available(iOS 12, tvOS 12, macOS 10.14, *)) {
         return [mtlDevice maxBufferLength];
@@ -141,6 +150,13 @@ MaybeError Buffer::Initialize(bool mappedAtCreation) {
         }
     }
     return {};
+}
+
+void Buffer::InitializeAsWrapping(const BufferDescriptor* descriptor,
+                                  NSPRef<id<MTLBuffer>> wrapped) {
+    mAllocatedSize = [wrapped.Get() length];
+    mMtlBuffer = std::move(wrapped);
+    SetIsDataInitialized();
 }
 
 Buffer::~Buffer() = default;

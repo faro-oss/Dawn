@@ -35,6 +35,7 @@ namespace dawn::native::metal {
 
 struct KalmanInfo;
 struct ExternalImageMTLSharedEventDescriptor;
+struct ExternalBufferDescriptor;
 
 class Device final : public DeviceBase {
   public:
@@ -61,6 +62,8 @@ class Device final : public DeviceBase {
         const ExternalImageDescriptor* descriptor,
         IOSurfaceRef ioSurface,
         std::vector<MTLSharedEventAndSignalValue> waitEvents);
+    Ref<Buffer> CreateBufferWrapping(const ExternalBufferDescriptor* descriptor,
+                                     NSPRef<id<MTLBuffer>> buffer);
     void WaitForCommandsToBeScheduled();
 
     ResultOrError<std::unique_ptr<StagingBufferBase>> CreateStagingBuffer(size_t size) override;

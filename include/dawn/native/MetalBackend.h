@@ -81,6 +81,34 @@ DAWN_NATIVE_EXPORT WGPUTexture WrapIOSurface(WGPUDevice device,
 DAWN_NATIVE_EXPORT void IOSurfaceEndAccess(WGPUTexture texture,
                                            ExternalImageIOSurfaceEndAccessDescriptor* descriptor);
 
+struct DAWN_NATIVE_EXPORT ExternalBufferDescriptor {
+    const WGPUBufferDescriptor* bufferDescriptor;  // Must match buffer creation params
+
+#ifdef __OBJC__
+    id<MTLBuffer> buffer = nil;
+    static_assert(sizeof(id<MTLBuffer>) == sizeof(void*));
+    static_assert(alignof(id<MTLBuffer>) == alignof(void*));
+#else
+    void* buffer = nullptr;
+#endif
+};
+
+DAWN_NATIVE_EXPORT WGPUBuffer WrapBuffer(WGPUDevice device,
+                                         const ExternalBufferDescriptor* descriptor);
+
+DAWN_NATIVE_EXPORT
+#ifdef __OBJC__
+    id<MTLDevice>
+#else
+    void*
+#endif
+    UnwrapDevice(WGPUDevice device);
+
+#if __OBJC__
+    static_assert(sizeof(id<MTLDevice>) == sizeof(void*));
+    static_assert(alignof(id<MTLDevice>) == alignof(void*));
+#endif
+
 // When making Metal interop with other APIs, we need to be careful that QueueSubmit doesn't
 // mean that the operations will be visible to other APIs/Metal devices right away. macOS
 // does have a global queue of graphics operations, but the command buffers are inserted there
